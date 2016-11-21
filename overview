@@ -1,0 +1,7 @@
+Read in a list of adjacent vertices
+
+
+Something like this:
+[[a, b],[a, c],[a, d],[d, e],[d, f]]
+
+would be representative of a tree with a as the root with three children b,c,d and b and c being leaves and d having two children e and f.

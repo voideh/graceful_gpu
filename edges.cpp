@@ -16,6 +16,7 @@ void calculate_difference(Node *root, int edges[])
     }
   }
 }
+
 int main()
 {
   int edges[EDGES];
