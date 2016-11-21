@@ -1,3 +1,15 @@
+Graceful Labeling Overview In Brief:
+What is a graceful labeling?
+----------------------------------
+A graceful labeling for some graph G is a labeling of Nodes N with integer values between {0...m}, where m is the total number of edges in the graph G, such that an edge is labeled by the absolute difference of it's two end nodes, and the labeling used by that edge cannot be used by any other edge.
+
+If such a labeling can be found, then that graph is considered a graceful graph.
+
+How is it useful?:
+----------------------------------
+Graceful labeling, and more generally graph labeling, are widely used in fields like code theory, network mapping, and even missle guidance systems. Specifically, graceful labeling has important uses in MPLS (Multilabel Protocol Label Switching) networks. ( I saw a paper on this on the fiu library, will read and give more specifics). There is also currently an unproved conjecture in graph theory which states that every tree is graceful, or in otherwords every tree can be gracefully labeled.
+
+
 A general overview of the program:
 Read in a list of adjacent vertices
 ------------------------------------
