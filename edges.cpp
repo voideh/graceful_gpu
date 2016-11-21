@@ -2,10 +2,10 @@
 #include "nodes.h"
 using namespace std;
 int NODES = 7;
-int EDGES = NODES -1 ;
+const int EDGES = NODES -1 ;
 int DIFF_COUNT = 0;
 
-void calculate_difference(Node *root, int edges[EDGES])
+void calculate_difference(Node *root, int edges[])
 {
   if(root->num_children > 0)
   {
