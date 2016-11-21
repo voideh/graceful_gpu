@@ -1,7 +1,16 @@
+A general overview of the program:
 Read in a list of adjacent vertices
-
-
-Something like this:
+------------------------------------
+in this format
 [[a, b],[a, c],[a, d],[d, e],[d, f]]
+which would be representative of a tree with a as the root with three children b,c,d and b and c being leaves and d having two children e and f.
 
-would be representative of a tree with a as the root with three children b,c,d and b and c being leaves and d having two children e and f.
+The output of running the program should return a labeling of for each of the arbitrary vertices ( i.e. a,b,c,d,e,f) with numbers {0-n-1} inclusive and non-repeating such that when the absolute difference of any two adjacent nodes is considered a label for the edge connecting the two nodes which is a value between {1-(n-1)} and that the value is not currently used by any other edge as a label.
+
+
+Process of Generating labels:
+----------------------------------
+A thread is spawned for every possible combination of node labelings ( which would be the different ways that the nodes could be labeled with values { 0-n-1 }. Then starting at the root of the tree ( arbitrary designation ), the edge labeling would be calculated by taking the difference between the root and any given child ( arbitrary ). That result is stored in an array. If there are any duplicate values in the array, then the labeling for the nodes cannot be graceful and the thread is killed.
+
+Once all nodes have been exhausted and the array contains no duplicate values, then a valid graceful labeling for the tree has been found.
+Once the labeling has been found, then any remaining threads running should be killed, and a final output should be printed displaying the time it took to find a graceful labeling, and the final labeling for the tree.
