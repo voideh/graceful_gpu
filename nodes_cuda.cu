@@ -8,7 +8,7 @@ int factorial(int n)
   return (n == 0 || n == 1) ? 1 : factorial(n-1) * n;
 }
 
-__global__ void check_gracefulness(int *perms, int *children, int *stops, int *graceful, int *temp, int NUMNODES, int NUMPERMS)
+__global__ void calculate_edges(int *perms, int *children, int *stops, int *graceful, int *temp, int NUMNODES, int NUMPERMS)
 {
     // will start at begining of node permutation
     int element = (blockIdx.x * blockDim.x + threadIdx.x) * NUMNODES; 
@@ -51,7 +51,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
     cudaMemcpy(d_children, children, child_size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_stops, stops, stop_size, cudaMemcpyHostToDevice);
 
-    check_gracefulness<<<numCores, numThreads>>>(d_perms,
+    calculate_edges<<<numCores, numThreads>>>(d_perms,
             d_children,
             d_stops,
             d_graceful_labels,
