@@ -5,6 +5,10 @@
 const int NUMNODES = 8;
 const int EDGES = NUMNODES - 1;
 
+__global__ void check_edges(int *children, int *labels, int *stop)
+{
+}
+
 bool check_edges(int children[], int labels[], int stop[])
 {
     // make temp array to check whether the current permutation of labels is graceful or not
