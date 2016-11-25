@@ -1,8 +1,6 @@
 #include<iostream>
 #include <algorithm>
 using namespace std;
-int NUMNODES = 12;
-unsigned long int NUMPERMS = factorial(NUMNODES);
 
 int factorial(int n)
 {
@@ -23,6 +21,8 @@ void prepare_gpu()
 
 int main()
 {
+    int NUMNODES = 3;
+    int NUMPERMS = 6;
     int stop[] = {1, -1, -1};
     int children[NUMNODES-1];
     int labels[NUMNODES];
