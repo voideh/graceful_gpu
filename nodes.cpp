@@ -1,6 +1,5 @@
 #include <iostream>
-#include <algorithm>
-#include <stdlib.h>
+#include <algorithm> #include <stdlib.h>
 #include <array>
 const int NUMNODES = 8;
 const int EDGES = NUMNODES - 1;
