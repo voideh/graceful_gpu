@@ -125,37 +125,37 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-    const int NUMNODES = 8;
-    const int NUMPERMS = factorial(NUMNODES);
-    int children[NUMNODES-1], perms[NUMPERMS*NUMNODES], graceful_labels[NUMPERMS], labels[NUMNODES];
-    int edges[NUMPERMS*(NUMNODES-1)];
-    int stops [] = {1, 3, 4, -1, 6, -1, -1, -1};
-
+    const int NUMNODES = 15;
+    const int MAX_PERMS = 125;
+    int children[NUMNODES-1],  labels[NUMNODES];
+    int found = 0;
+    int stops [] = {2, 4, -1, -1, 6, 7, 8, 9, 10, -1, -1, 12, -1, 13, -1};
     // generate both children and label array
     for(int i = 0; i < NUMNODES; i++)
     {
         labels[i] = i;
         if(i < NUMNODES - 1) children[i] = i+1;
     }
-    // create all permutations of given nodes
-    for(int i = 0; i < NUMPERMS; i++)
-    {
-        for(int j = 0; j < NUMNODES; j++)
+    do{
+        int perms[MAX_PERMS*NUMNODES], graceful_labels[MAX_PERMS], edges[MAX_PERMS*(NUMNODES-1)];
+        // create all permutations of given nodes
+        for(int i = 0; i < MAX_PERMS; i++)
         {
-            perms[i*NUMNODES+j] = labels[j];
-            //edges[i*NUMNODES+j] = 0;
+            for(int j = 0; j < NUMNODES; j++)
+            {
+                perms[i*NUMNODES+j] = labels[j];
+            }
+            graceful_labels[i] = -1;
+            next_permutation(labels, labels+NUMNODES);
         }
-        graceful_labels[i] = -1;
-        next_permutation(labels, labels+NUMNODES);
-    }
-    execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, NUMPERMS);
+        execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, MAX_PERMS);
 
-    int found = 0;
-    for(int i = 0; i < NUMPERMS; i++)
-    {
-        if(graceful_labels[i] != -1)
-            found++;
-    }
+        for(int i = 0; i < MAX_PERMS; i++)
+        {
+            if(graceful_labels[i] != -1)
+                found++;
+        }
+    }while(next_permutation(labels, labels+NUMNODES));
     cout << "Found " << found << " graceful labelings." << endl;
     return 0;
 }
