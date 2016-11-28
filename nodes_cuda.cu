@@ -81,7 +81,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
     // 768 cores available on my home computer
     // 1024 cores available on starship
-    int numCores = (NUMNODES * NUMPERMS)/ 768 + 1;
+    int numCores = (NUMNODES * NUMPERMS)/ 1024 + 1;
     int numThreads = 1024;
 
     // Allocate memory on GPU
@@ -125,20 +125,28 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-    const int NUMNODES = 15;
-    const int MAX_PERMS = 125;
+const int NUMNODES = 10;
+const int MAX_PERMS = 368200;
     int children[NUMNODES-1],  labels[NUMNODES];
     int found = 0;
-    int stops [] = {2, 4, -1, -1, 6, 7, 8, 9, 10, -1, -1, 12, -1, 13, -1};
+// 11 node tree
+    //int stops [] = {1,2,5,6,7,8,9,-1,-1,-1,-1};
+// 10 node tree
+    int stops [] = {3, 4, 5, 6, 7, 8, -1, -1, -1, -1};
+bool has_next = false;
     // generate both children and label array
     for(int i = 0; i < NUMNODES; i++)
     {
         labels[i] = i;
         if(i < NUMNODES - 1) children[i] = i+1;
     }
-    do{
-        int perms[MAX_PERMS*NUMNODES], graceful_labels[MAX_PERMS], edges[MAX_PERMS*(NUMNODES-1)];
+//   do{
+//	int *perms, *graceful_labels, *edges;
+//	perms = (int *)malloc(sizeof(int) * MAX_PERMS*NUMNODES);
+//	edges = (int *)malloc(sizeof(int) * MAX_PERMS*(NUMNODES-1));
+//	graceful_labels = (int *)malloc(sizeof(int) * MAX_PERMS);
         // create all permutations of given nodes
+	int perms[MAX_PERMS*NUMNODES], graceful_labels[MAX_PERMS], edges[MAX_PERMS*(NUMNODES-1)];
         for(int i = 0; i < MAX_PERMS; i++)
         {
             for(int j = 0; j < NUMNODES; j++)
@@ -146,7 +154,8 @@ int main()
                 perms[i*NUMNODES+j] = labels[j];
             }
             graceful_labels[i] = -1;
-            next_permutation(labels, labels+NUMNODES);
+            has_next = next_permutation(labels, labels+NUMNODES);
+	if(!has_next) break;
         }
         execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, MAX_PERMS);
 
@@ -155,7 +164,7 @@ int main()
             if(graceful_labels[i] != -1)
                 found++;
         }
-    }while(next_permutation(labels, labels+NUMNODES));
+// }while(found < 1);
     cout << "Found " << found << " graceful labelings." << endl;
     return 0;
 }
