@@ -125,21 +125,24 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-    const int NUMNODES = 8;
-    const int NUMPERMS = factorial(NUMNODES);
-    int stops [] = {1, 3, 4, -1, 6, -1, -1, -1};
-    //const int NUMNODES = 3;
-    //const int NUMPERMS = factorial(NUMNODES);
-    //int stops [] = {1, -1, -1};
-    int children[NUMNODES-1], perms[NUMPERMS*NUMNODES], graceful_labels[NUMPERMS], labels[NUMNODES];
-    int edges[NUMPERMS*(NUMNODES-1)];
+//    const int NUMNODES = 10;
+ //   const int NUMPERMS = 460;
+  //  int stops [] = {2,4,5,6,7,8,-1,-1,-1,-1};
+    int found = 0;
+    bool has_next = false;
+   const int NUMNODES = 3;
+   const int NUMPERMS = factorial(NUMNODES);
+   int stops [] = {1, -1, -1};
 
+    int children[NUMNODES-1], labels[NUMNODES];
     // generate both children and label array
     for(int i = 0; i < NUMNODES; i++)
     {
         labels[i] = i;
         if(i < NUMNODES - 1) children[i] = i+1;
     }
+do{
+    int edges[NUMPERMS*(NUMNODES-1)], perms[NUMPERMS*NUMNODES], graceful_labels[NUMPERMS];
     // create all permutations of given nodes
     for(int i = 0; i < NUMPERMS; i++)
     {
@@ -149,9 +152,21 @@ int main()
             //edges[i*NUMNODES+j] = 0;
         }
         graceful_labels[i] = -1;
-        next_permutation(labels, labels+NUMNODES);
+        has_next = next_permutation(labels, labels+NUMNODES);
+if(!has_next) break;
     }
     execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, NUMPERMS);
+    for(int i = 0; i < NUMPERMS; i++)
+    {
+        if(graceful_labels[i] != -1)
+	{
+		for(int j = 0; j < NUMNODES; j++)
+		cout << perms[graceful_labels[i] + j] << " ";
+		cout << endl;
+            found++;
+	}
+	
+    }
 
 //for(int i = 0; i < NUMPERMS; i++)
 //{
@@ -164,18 +179,7 @@ int main()
 //cout << edges[i*(NUMNODES-1)+j] << " ";
 //cout << endl;
 //}
-    int found = 0;
-    for(int i = 0; i < NUMPERMS; i++)
-    {
-        if(graceful_labels[i] != -1)
-	{
-		for(int j = 0; j < NUMNODES; j++)
-		cout << perms[graceful_labels[i] + j] << " ";
-		cout << endl;
-            found++;
-	}
-	
-    }
+}while(has_next);
     cout << "Found " << found << " graceful labelings." << endl;
     return 0;
 }
