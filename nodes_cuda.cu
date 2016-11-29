@@ -110,7 +110,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
     cudaFree(&d_children);
 
     // For debugging  purposes only
-    /* cudaMemcpy(edges, d_edges, edge_size, cudaMemcpyDeviceToHost); */
+     cudaMemcpy(edges, d_edges, edge_size, cudaMemcpyDeviceToHost); 
 
     // Now check the gracefulness of the given edge labelings.
     check_gracefulness<<<numCores, numThreads>>>(d_edges, d_graceful_labels, NUMNODES, NUMPERMS);
@@ -125,27 +125,24 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-const int NUMNODES = 10;
-const int MAX_PERMS = 368200;
+    //const int NUMNODES = 5;
+    //const int MAX_PERMS = factorial(5);
+    //int stops [] = {1,-1,3,-1,-1};
+    const int NUMNODES = 3;
+    const int MAX_PERMS = factorial(NUMNODES);
+    int stops [] = {1,-1,-1};
     int children[NUMNODES-1],  labels[NUMNODES];
     int found = 0;
 // 11 node tree
-    //int stops [] = {1,2,5,6,7,8,9,-1,-1,-1,-1};
-// 10 node tree
-    int stops [] = {3, 4, 5, 6, 7, 8, -1, -1, -1, -1};
-bool has_next = false;
+   //int stops [] = {1,2,5,6,7,8,9,-1,-1,-1,-1};
+    bool has_next = false;
     // generate both children and label array
     for(int i = 0; i < NUMNODES; i++)
     {
         labels[i] = i;
-        if(i < NUMNODES - 1) children[i] = i+1;
+        if(i < (NUMNODES - 1)) children[i] = i+1;
     }
-//   do{
-//	int *perms, *graceful_labels, *edges;
-//	perms = (int *)malloc(sizeof(int) * MAX_PERMS*NUMNODES);
-//	edges = (int *)malloc(sizeof(int) * MAX_PERMS*(NUMNODES-1));
-//	graceful_labels = (int *)malloc(sizeof(int) * MAX_PERMS);
-        // create all permutations of given nodes
+//do{
 	int perms[MAX_PERMS*NUMNODES], graceful_labels[MAX_PERMS], edges[MAX_PERMS*(NUMNODES-1)];
         for(int i = 0; i < MAX_PERMS; i++)
         {
@@ -154,17 +151,31 @@ bool has_next = false;
                 perms[i*NUMNODES+j] = labels[j];
             }
             graceful_labels[i] = -1;
-            has_next = next_permutation(labels, labels+NUMNODES);
-	if(!has_next) break;
+		 next_permutation(labels, labels+NUMNODES);
         }
         execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, MAX_PERMS);
 
         for(int i = 0; i < MAX_PERMS; i++)
         {
             if(graceful_labels[i] != -1)
+		{
                 found++;
-        }
-// }while(found < 1);
+		}
+	}
+
+for(int i = 0; i < MAX_PERMS; i++)
+{
+for(int j = 0; j < NUMNODES; j++)
+{
+	cout << perms[i*NUMNODES+j] << " " ;
+}
+cout << endl;
+for(int j = 0; j < NUMNODES-1; j++)
+	cout << edges[i*NUMNODES+j] << " ";
+cout << endl;
+}
+
+//}while(has_next);
     cout << "Found " << found << " graceful labelings." << endl;
     return 0;
 }
