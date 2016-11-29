@@ -62,7 +62,7 @@ __global__ void check_gracefulness(int *edges, int *graceful_labels, int NUMNODE
             if(!graceful) break;
         }
         if(graceful)
-            graceful_labels[element / (NUMNODES-1)] = element;
+            graceful_labels[element / (NUMNODES-1)] = element/(NUMNODES-1)*NUMNODES;
         if(!graceful)
             graceful_labels[element / (NUMNODES-1)] = -1;
     }
@@ -81,7 +81,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
     // 768 cores available on my home computer
     // 1024 cores available on starship
-    int numCores = (NUMNODES * NUMPERMS)/ 1024 + 1;
+    int numCores = (NUMNODES * NUMPERMS)/ 768 + 1;
     int numThreads = 1024;
 
     // Allocate memory on GPU
@@ -110,7 +110,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
     cudaFree(&d_children);
 
     // For debugging  purposes only
-     cudaMemcpy(edges, d_edges, edge_size, cudaMemcpyDeviceToHost); 
+    cudaMemcpy(edges, d_edges, edge_size, cudaMemcpyDeviceToHost);
 
     // Now check the gracefulness of the given edge labelings.
     check_gracefulness<<<numCores, numThreads>>>(d_edges, d_graceful_labels, NUMNODES, NUMPERMS);
@@ -125,57 +125,57 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-    //const int NUMNODES = 5;
-    //const int MAX_PERMS = factorial(5);
-    //int stops [] = {1,-1,3,-1,-1};
-    const int NUMNODES = 3;
-    const int MAX_PERMS = factorial(NUMNODES);
-    int stops [] = {1,-1,-1};
-    int children[NUMNODES-1],  labels[NUMNODES];
-    int found = 0;
-// 11 node tree
-   //int stops [] = {1,2,5,6,7,8,9,-1,-1,-1,-1};
-    bool has_next = false;
+    const int NUMNODES = 8;
+    const int NUMPERMS = factorial(NUMNODES);
+    int stops [] = {1, 3, 4, -1, 6, -1, -1, -1};
+    //const int NUMNODES = 3;
+    //const int NUMPERMS = factorial(NUMNODES);
+    //int stops [] = {1, -1, -1};
+    int children[NUMNODES-1], perms[NUMPERMS*NUMNODES], graceful_labels[NUMPERMS], labels[NUMNODES];
+    int edges[NUMPERMS*(NUMNODES-1)];
+
     // generate both children and label array
     for(int i = 0; i < NUMNODES; i++)
     {
         labels[i] = i;
-        if(i < (NUMNODES - 1)) children[i] = i+1;
+        if(i < NUMNODES - 1) children[i] = i+1;
     }
-//do{
-	int perms[MAX_PERMS*NUMNODES], graceful_labels[MAX_PERMS], edges[MAX_PERMS*(NUMNODES-1)];
-        for(int i = 0; i < MAX_PERMS; i++)
+    // create all permutations of given nodes
+    for(int i = 0; i < NUMPERMS; i++)
+    {
+        for(int j = 0; j < NUMNODES; j++)
         {
-            for(int j = 0; j < NUMNODES; j++)
-            {
-                perms[i*NUMNODES+j] = labels[j];
-            }
-            graceful_labels[i] = -1;
-		 next_permutation(labels, labels+NUMNODES);
+            perms[i*NUMNODES+j] = labels[j];
+            //edges[i*NUMNODES+j] = 0;
         }
-        execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, MAX_PERMS);
+        graceful_labels[i] = -1;
+        next_permutation(labels, labels+NUMNODES);
+    }
+    execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, NUMPERMS);
 
-        for(int i = 0; i < MAX_PERMS; i++)
-        {
-            if(graceful_labels[i] != -1)
-		{
-                found++;
-		}
+//for(int i = 0; i < NUMPERMS; i++)
+//{
+//for(int j = 0; j < NUMNODES; j++)
+//{
+//	cout << perms[i*NUMNODES+j] << " ";
+//}
+//cout << endl;
+//for(int j =0; j < NUMNODES-1; j++)
+//cout << edges[i*(NUMNODES-1)+j] << " ";
+//cout << endl;
+//}
+    int found = 0;
+    for(int i = 0; i < NUMPERMS; i++)
+    {
+        if(graceful_labels[i] != -1)
+	{
+		for(int j = 0; j < NUMNODES; j++)
+		cout << perms[graceful_labels[i] + j] << " ";
+		cout << endl;
+            found++;
 	}
-
-for(int i = 0; i < MAX_PERMS; i++)
-{
-for(int j = 0; j < NUMNODES; j++)
-{
-	cout << perms[i*NUMNODES+j] << " " ;
-}
-cout << endl;
-for(int j = 0; j < NUMNODES-1; j++)
-	cout << edges[i*NUMNODES+j] << " ";
-cout << endl;
-}
-
-//}while(has_next);
+	
+    }
     cout << "Found " << found << " graceful labelings." << endl;
     return 0;
 }
