@@ -1,7 +1,9 @@
 #include <iostream>
-#include <algorithm> #include <stdlib.h>
+#include <algorithm> 
+#include <stdlib.h> 
+#include "time.h"
 #include <array>
-const int NUMNODES = 8;
+const int NUMNODES = 12;
 const int EDGES = NUMNODES - 1;
 
 bool check_edges(int children[], int labels[], int stop[])
@@ -49,13 +51,15 @@ int main()
     bool isgraceful = false;
 
     int children[NUMNODES-1];
-    int stop [] = {1, 3, 4, -1, 6, -1, -1, -1};
+    //int stop [] = {1, 3, 4, -1, 6, -1, -1, -1};
+   int stop [] = {2, 4, 5, 6, 7, 8, 9, -1, -1, -1, 10, -1};
     int labels[NUMNODES];
     for(int i = 0; i < NUMNODES; i++)
         labels[i] = i;
     for(int i = 0; i < NUMNODES-1; i++)
         children[i] = i+1;
     // this will check all possible permutations of an array of numbers for a graceful configuration.
+	init(NUMNODES);
     do
     {
         isgraceful = check_edges(children, labels, stop);
@@ -65,6 +69,7 @@ int main()
 
     if(isgraceful)
     {
+	finish(NUMNODES);
         std::cout << "Graceful labeling found. " << std::endl;
         for(int e : labels)
             std::cout << e << " ";

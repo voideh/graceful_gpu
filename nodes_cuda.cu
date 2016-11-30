@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <iostream>
 #include <algorithm>
+#include "time.h"
 using namespace std;
-
 int factorial(int n)
 {
   return (n == 0 || n == 1) ? 1 : factorial(n-1) * n;
@@ -81,7 +81,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
     // 768 cores available on my home computer
     // 1024 cores available on starship
-    int numCores = (NUMNODES * NUMPERMS)/ 768 + 1;
+    int numCores = (NUMNODES * NUMPERMS)/ 1024 + 1;
     int numThreads = 1024;
 
     // Allocate memory on GPU
@@ -125,14 +125,20 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-//    const int NUMNODES = 10;
- //   const int NUMPERMS = 460;
-  //  int stops [] = {2,4,5,6,7,8,-1,-1,-1,-1};
-    int found = 0;
-    bool has_next = false;
-   const int NUMNODES = 3;
-   const int NUMPERMS = factorial(NUMNODES);
-   int stops [] = {1, -1, -1};
+   //const int NUMNODES = 10;
+   //const int NUMPERMS = 9600;
+   //int stops [] = {2,4,5,6,7,8,-1,-1,-1,-1};
+   const int NUMNODES = 12;
+   const int NUMPERMS = 120*12;
+   int stops [] = {2, 4, 5, 6, 7, 8, 9, -1, -1, -1, 10, -1};
+   //const int NUMNODES = 14;
+   //const int NUMPERMS = 140*14;
+   //int stops [] = {};
+   int found = 0;
+   bool has_next = false;
+   //const int NUMNODES = 3;
+   //const int NUMPERMS = factorial(NUMNODES);
+   //int stops [] = {1, -1, -1};
 
     int children[NUMNODES-1], labels[NUMNODES];
     // generate both children and label array
@@ -141,6 +147,7 @@ int main()
         labels[i] = i;
         if(i < NUMNODES - 1) children[i] = i+1;
     }
+	init(NUMNODES);
 do{
     int edges[NUMPERMS*(NUMNODES-1)], perms[NUMPERMS*NUMNODES], graceful_labels[NUMPERMS];
     // create all permutations of given nodes
@@ -160,13 +167,15 @@ if(!has_next) break;
     {
         if(graceful_labels[i] != -1)
 	{
-		for(int j = 0; j < NUMNODES; j++)
-		cout << perms[graceful_labels[i] + j] << " ";
-		cout << endl;
-            found++;
+		//for(int j = 0; j < NUMNODES; j++)
+		//cout << perms[graceful_labels[i] + j] << " ";
+		//cout << endl;
+            found=1;
+		break;
 	}
 	
     }
+if(found == 1) finish(NUMNODES);
 
 //for(int i = 0; i < NUMPERMS; i++)
 //{
@@ -179,7 +188,7 @@ if(!has_next) break;
 //cout << edges[i*(NUMNODES-1)+j] << " ";
 //cout << endl;
 //}
-}while(has_next);
+}while(has_next && found != 1);
     cout << "Found " << found << " graceful labelings." << endl;
     return 0;
 }
