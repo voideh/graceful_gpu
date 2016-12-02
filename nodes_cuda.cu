@@ -125,29 +125,27 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
 
 int main()
 {
-   //const int NUMNODES = 10;
-   //const int NUMPERMS = 9600;
-   //int stops [] = {2,4,5,6,7,8,-1,-1,-1,-1};
-   const int NUMNODES = 12;
-   const int NUMPERMS = 120*12;
-   int stops [] = {2, 4, 5, 6, 7, 8, 9, -1, -1, -1, 10, -1};
-   //const int NUMNODES = 14;
-   //const int NUMPERMS = 140*14;
-   //int stops [] = {};
-   int found = 0;
-   bool has_next = false;
    //const int NUMNODES = 3;
    //const int NUMPERMS = factorial(NUMNODES);
    //int stops [] = {1, -1, -1};
+  // const int NUMNODES = 9;
+  // const int NUMPERMS = 100500;
+  // int stops [] = {2,5,7,-1,-1,-1,-1,-1,-1};
+   const int NUMNODES = 11;
+   const int NUMPERMS = 600*NUMNODES;
+   int stops [] = {2,-1,5,-1, -1,6,-1,7,9,-1,-1};
+   int found = 0;
+   bool has_next = false;
+   bool has_started = false;
 
     int children[NUMNODES-1], labels[NUMNODES];
+    float iter = 0;
     // generate both children and label array
     for(int i = 0; i < NUMNODES; i++)
     {
         labels[i] = i;
         if(i < NUMNODES - 1) children[i] = i+1;
     }
-	init(NUMNODES);
 do{
     int edges[NUMPERMS*(NUMNODES-1)], perms[NUMPERMS*NUMNODES], graceful_labels[NUMPERMS];
     // create all permutations of given nodes
@@ -162,6 +160,11 @@ do{
         has_next = next_permutation(labels, labels+NUMNODES);
 if(!has_next) break;
     }
+    if(!has_started)
+    {
+    	has_started = true;
+	init(NUMNODES);
+    }
     execute_gpu(perms, children, stops, graceful_labels, edges, NUMNODES, NUMPERMS);
     for(int i = 0; i < NUMPERMS; i++)
     {
@@ -175,7 +178,6 @@ if(!has_next) break;
 	}
 	
     }
-if(found == 1) finish(NUMNODES);
 
 //for(int i = 0; i < NUMPERMS; i++)
 //{
@@ -188,7 +190,10 @@ if(found == 1) finish(NUMNODES);
 //cout << edges[i*(NUMNODES-1)+j] << " ";
 //cout << endl;
 //}
+iter++;
 }while(has_next && found != 1);
+ finish(NUMNODES);
     cout << "Found " << found << " graceful labelings." << endl;
+    cout << "Took " << iter << " iterations" << endl;
     return 0;
 }

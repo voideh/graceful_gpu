@@ -3,7 +3,7 @@
 #include <stdlib.h> 
 #include "time.h"
 #include <array>
-const int NUMNODES = 12;
+const int NUMNODES = 11;
 const int EDGES = NUMNODES - 1;
 
 bool check_edges(int children[], int labels[], int stop[])
@@ -51,9 +51,12 @@ int main()
     bool isgraceful = false;
 
     int children[NUMNODES-1];
-    //int stop [] = {1, 3, 4, -1, 6, -1, -1, -1};
-   int stop [] = {2, 4, 5, 6, 7, 8, 9, -1, -1, -1, 10, -1};
+    //int stops [] = {1, 3, 4, -1, 6, -1, -1, -1};
+   int stops [] = {2,-1,5,-1, -1,6,-1,7,9,-1,-1};
+   //int stops [] = {2,5,7,-1,-1,-1,-1,-1,-1};
+   //int stops [] = {2,4,5,6,7,8,-1,-1,-1,-1};
     int labels[NUMNODES];
+    float iters = 0;
     for(int i = 0; i < NUMNODES; i++)
         labels[i] = i;
     for(int i = 0; i < NUMNODES-1; i++)
@@ -62,7 +65,8 @@ int main()
 	init(NUMNODES);
     do
     {
-        isgraceful = check_edges(children, labels, stop);
+	iters++;
+        isgraceful = check_edges(children, labels, stops);
         if(!isgraceful)
             std::next_permutation(labels, labels+NUMNODES);
     }while(!isgraceful);
@@ -73,7 +77,8 @@ int main()
         std::cout << "Graceful labeling found. " << std::endl;
         for(int e : labels)
             std::cout << e << " ";
-        std::cout << std::endl;
+
+	std::cout << "\nTook " << iters << " iterations" << std::endl;
     }
     return 0;
 }
