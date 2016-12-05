@@ -110,7 +110,7 @@ void execute_gpu(int perms[], int children[], int stops[], int graceful_labels[]
     cudaFree(&d_children);
 
     // For debugging  purposes only
-    cudaMemcpy(edges, d_edges, edge_size, cudaMemcpyDeviceToHost);
+//    cudaMemcpy(edges, d_edges, edge_size, cudaMemcpyDeviceToHost);
 
     // Now check the gracefulness of the given edge labelings.
     check_gracefulness<<<numCores, numThreads>>>(d_edges, d_graceful_labels, NUMNODES, NUMPERMS);
@@ -139,7 +139,7 @@ int main()
    //int stops [] = {2,-1,5,-1, -1,6,-1,7,9,-1,-1};
    const int NUMNODES = 12;
    const int NUMPERMS = 1000*NUMNODES;
-   int stops [] = {2,-1,3,-1,4,6,-1,9,-1,10,-1,-1};
+   int stops [] = {1, 4, 6, -1, -1, -1, 9, -1, -1, 10, -1};
    int found = 0;
    bool has_next = false;
    bool has_started = false;
@@ -176,26 +176,15 @@ if(!has_next) break;
     {
         if(graceful_labels[i] != -1)
 	{
-		//for(int j = 0; j < NUMNODES; j++)
-		//cout << perms[graceful_labels[i] + j] << " ";
-		//cout << endl;
-            found=1;
+		for(int j = 0; j < NUMNODES; j++)
+		cout << perms[graceful_labels[i] + j] << " ";
+		cout << endl;
+		    found=1;
 		break;
 	}
 	
     }
 
-//for(int i = 0; i < NUMPERMS; i++)
-//{
-//for(int j = 0; j < NUMNODES; j++)
-//{
-//	cout << perms[i*NUMNODES+j] << " ";
-//}
-//cout << endl;
-//for(int j =0; j < NUMNODES-1; j++)
-//cout << edges[i*(NUMNODES-1)+j] << " ";
-//cout << endl;
-//}
 iter++;
 }while(has_next && found != 1);
  finish(NUMNODES);
